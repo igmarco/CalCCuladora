@@ -1,0 +1,743 @@
+/**
+ * JavaCC template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
+ */
+options
+{
+  static = true;
+}
+
+PARSER_BEGIN(Calculadora)
+package Calculadora;
+import Tools.Complejo;
+import Tools.ExcepcionDivideCero;
+import java.util.HashMap;
+
+public class Calculadora
+{
+  static HashMap < String, Complejo > variables = new HashMap < String, Complejo > ();
+
+  public static void main(String args []) throws ParseException
+  {
+    Calculadora parser = new Calculadora(System.in);
+    while (true)
+    {
+      System.out.println("---------------------------------------------------------------------------------------------------------------");
+      System.out.println("------------------------------------------------| CALCULADORA |------------------------------------------------");
+      System.out.println("---------------------------------------------------------------------------------------------------------------");
+      System.out.println("");
+      System.out.println("Inicio (\"Help;\" abre la ayuda):");
+      try
+      {
+        Calculadora.sesion();
+      }
+      catch (Exception e)
+      {
+        System.out.println("NOK.");
+        System.out.println(e.getMessage());
+        Calculadora.ReInit(System.in);
+      }
+      catch (Error e)
+      {
+        System.out.println("Oops.");
+        System.out.println(e.getMessage());
+        break;
+      }
+    }
+  }
+
+  public static boolean compara(String comparador, Complejo exp1, Complejo exp2)
+  {
+    boolean resultado = false;
+    switch (comparador)
+    {
+      case ">" : 
+      resultado = (exp1.getReal() > exp2.getReal() || exp1.getImag() > exp2.getImag());
+      break;
+      case "<" : 
+      resultado = (exp1.getReal() < exp2.getReal() || exp1.getImag() < exp2.getImag());
+      break;
+      case "==" : 
+      resultado = (exp1.getReal() == exp2.getReal() && exp1.getImag() == exp2.getImag());
+      break;
+      case ">=" : 
+      resultado = (exp1.getReal() >= exp2.getReal() || exp1.getImag() >= exp2.getImag());
+      break;
+      case "<=" : 
+      resultado = (exp1.getReal() <= exp2.getReal() || exp1.getImag() <= exp2.getImag());
+      break;
+      case ">NS" : 
+      resultado = (exp1.getReal() > exp2.getReal() || exp1.getImag() > exp2.getImag());
+      break;
+      case "<NS" : 
+      resultado = (exp1.getReal() < exp2.getReal() || exp1.getImag() < exp2.getImag());
+      break;
+      case "==NS" : 
+      resultado = (exp1.getReal() == exp2.getReal() || exp1.getImag() == exp2.getImag());
+      break;
+      case ">=NS" : 
+      resultado = (exp1.getReal() >= exp2.getReal() || exp1.getImag() >= exp2.getImag());
+      break;
+      case "<=NS" : 
+      resultado = (exp1.getReal() <= exp2.getReal() || exp1.getImag() <= exp2.getImag());
+      break;
+      case ">S" : 
+      resultado = (exp1.getReal() > exp2.getReal() && exp1.getImag() > exp2.getImag());
+      break;
+      case "<S" : 
+      resultado = (exp1.getReal() < exp2.getReal() && exp1.getImag() < exp2.getImag());
+      break;
+      case ">=S" : 
+      resultado = (exp1.getReal() >= exp2.getReal() && exp1.getImag() >= exp2.getImag());
+      break;
+      case "<=S" : 
+      resultado = (exp1.getReal() <= exp2.getReal() && exp1.getImag() <= exp2.getImag());
+      break;
+      case ">R" : 
+      resultado = (exp1.getReal() > exp2.getReal());
+      break;
+      case "<R" : 
+      resultado = (exp1.getReal() < exp2.getReal());
+      break;
+      case "==R" : 
+      resultado = (exp1.getReal() == exp2.getReal());
+      break;
+      case ">=R" : 
+      resultado = (exp1.getReal() >= exp2.getReal());
+      break;
+      case "<=R" : 
+      resultado = (exp1.getReal() <= exp2.getReal());
+      break;
+      case ">I" : 
+      resultado = (exp1.getImag() > exp2.getImag());
+      break;
+      case "<I" : 
+      resultado = (exp1.getImag() < exp2.getImag());
+      break;
+      case "==I" : 
+      resultado = (exp1.getImag() == exp2.getImag());
+      break;
+      case ">=I" : 
+      resultado = (exp1.getImag() >= exp2.getImag());
+      break;
+      case "<=I" : 
+      resultado = (exp1.getImag() <= exp2.getImag());
+      break;
+    }
+    return resultado;
+  }
+}
+
+PARSER_END(Calculadora)
+
+SKIP :
+{
+  " "
+| "\t"
+| "\r"
+| "\n"
+}
+
+TOKEN : /* OPERATORS */
+{
+  < PLUS : "+" >
+| < MINUS : "-" >
+| < MULTIPLY : "*" >
+| < DIVIDE : "/" >
+| < ELEVADO : "^" >
+}
+
+TOKEN : /* COMPARATORS */
+{
+  < G : ">" >
+| < L : "<" >
+| < GEQ : ">=" >
+| < LEQ : "<=" >
+| < EQ : "==" >
+| < GR : ">R" >
+| < LR : "<R" >
+| < GEQR : ">=R" >
+| < LEQR : "<=R" >
+| < EQR : "==R" >
+| < GI : ">I" >
+| < LI : "<I" >
+| < GEQI : ">=I" >
+| < LEQI : "<=I" >
+| < EQI : "==I" >
+}
+
+TOKEN : /* INSTRUCCIONES */
+{
+  < IF :
+    "si"
+  | "Si" >
+| < ELIF :
+    /* "si no si"
+  | "Si no si"
+  | */"si no, si"
+  | "Si no, si" >
+| < THEN :
+    "entonces"
+  | "Entonces" >
+| < ELSE :
+    "si no"
+  | "Si no" >
+}
+
+TOKEN : /* EOL */
+{
+  < EOLn : ";" >
+}
+
+TOKEN : /* BASE */
+{
+  < DECIMAL : "d" >
+| < OCTAL : "o" >
+| < BINARIO : "b" >
+| < HEXADECIMAL : "h" >
+}
+
+TOKEN : /* DIGITS */
+{
+  < DIGITO : [ "0"-"9", "A"-"F" ] >
+}
+
+TOKEN : /* VARIABLES */
+{
+  < VARIABLE :
+    (< LETRA >)+
+  | "$" >
+| < LETRA : [ "a"-"z" ] >
+}
+
+TOKEN : /* I AND OTHERS */
+{
+  < I : "#i" >
+| < E : "#e" >
+| < PI : "#pi" >
+}
+
+TOKEN : /* EQUAL */
+{
+  < IGUAL : "=" >
+}
+
+TOKEN : /* HELP */
+{
+  < HELP : "Help" >
+}
+
+void sesion() :
+{
+  String resultado;
+  variables.clear();
+  variables.put
+  (
+    "$", new Complejo()
+  )
+  ;
+}
+{
+  (
+    < HELP > < EOLn >
+    {
+      System.out.println("---------------------------------------------------------------------------------------------------------------");
+      System.out.println("---------- INSTRUCCIONES DE LA CALCULADORA --------------------------------------------------------------------");
+      System.out.println("---------------------------------------------------------------------------------------------------------------");
+      System.out.println("------------ Instrucciones terminadas en \";\". -----------------------------------------------------------------");
+      System.out.println("------------ Admite decimales, binarios, octales y hexadecimales, si los ponemos ------------------------------");
+      System.out.println("------------ seguidos de d (por defecto), b, o y h. -----------------------------------------------------------");
+      System.out.println("------------ Permite utilizar los valores e, i y pi con \'#e\', \'#i\' y \'#pi\' respectivamente. -------------------");
+      System.out.println("------------ Soporta potencias de base compleja y exponente compleja. -----------------------------------------");
+      System.out.println("------------ El \'.\' sirve para denotar decimales. -------------------------------------------------------------");
+      System.out.println("------------ Las variables deben estar formadas \u00fanicamente por min\u00fasculas. ------------------------------------");
+      System.out.println("------------ Soporta condicionales definidos de la siguiente forma:  ------------------------------------------");
+      System.out.println("--------------------- si ([expresi\u00f3n] [comparador] [expresi\u00f3n]) entonces [expresi\u00f3n] --------------------------");
+      System.out.println("--------------------- si no, si ([expresi\u00f3n] [comparador] [expresi\u00f3n]) entonces [expresi\u00f3n] -------------------");
+      System.out.println("--------------------- si no [expresi\u00f3n] -----------------------------------------------------------------------");
+      System.out.println("------------ Soporta tambi\u00e9n condicionales definidos de la siguiente forma:  ----------------------------------");
+      System.out.println("--------------------- ([comparador],[expresi\u00f3n],[expresi\u00f3n]) [expresi\u00f3nS\u00ed] : [expresi\u00f3nNo] --------------------");
+      System.out.println("------------ Por supuesto, soporta anidamiento de condicionales (incluso dentro de ----------------------------");
+      System.out.println("------------ las propias condiciones). ------------------------------------------------------------------------");
+      System.out.println("---------------------------------------------------------------------------------------------------------------");
+    }
+  | resultado = linea()
+    {
+      System.out.println("> " + resultado);
+    }
+  )*
+  < EOF >
+  {
+    System.out.println("Fin del c\u00e1lculo.");
+  }
+}
+
+String linea() :
+{
+  Complejo resultadoCmplx;
+  String resultado;
+}
+{
+  (
+    LOOKAHEAD(2)
+    resultadoCmplx = asignacion()
+    {
+      resultado = resultadoCmplx.toString();
+    }
+  | LOOKAHEAD(2)
+    resultadoCmplx = expresion()
+    {
+      variables.replace("$", resultadoCmplx);
+      resultado = resultadoCmplx.toString();
+    }
+  | LOOKAHEAD(2)
+    resultadoCmplx = condicional1()
+    {
+      variables.replace("$", resultadoCmplx);
+      resultado = resultadoCmplx.toString();
+    }
+  | LOOKAHEAD(2)
+    resultadoCmplx = condicional2()
+    {
+      variables.replace("$", resultadoCmplx);
+      resultado = resultadoCmplx.toString();
+    }
+  )
+  < EOLn >
+  {
+    return resultado;
+  }
+}
+
+//------- COMIENZO ASIGNACIÓN -------
+Complejo asignacion() :
+{
+  Token variableToken;
+  String variable;
+  Complejo valor;
+}
+{
+  variableToken = < VARIABLE >
+  {
+    variable = variableToken.image;
+  }
+  < IGUAL > 
+  valor = expresion()
+  {
+    variables.put(variable, valor);
+  }
+  {
+    return valor;
+  }
+}
+
+//------- COMIENZO EXPRESIÓN GENERAL (EXPRESIÓN NUMÉRICA O CONDICIONAL) -------
+Complejo expresion() :
+{
+  Complejo resultado;
+}
+{
+  (
+    LOOKAHEAD(2)
+    resultado = expresionNum()
+  | LOOKAHEAD(2)
+    resultado = condicional1()
+  | LOOKAHEAD(2)
+    resultado = condicional2()
+  )
+  {
+    return resultado;
+  }
+}
+
+//------- COMIENZO EXPRESIÓN NUMÉRICA -------
+Complejo expresionNum() :
+{
+  Complejo parcial;
+  Complejo resultado;
+  boolean resta;
+}
+{
+  resultado = termino()
+  (
+    (
+      < PLUS >
+      {
+        resta = false;
+      }
+    | < MINUS >
+      {
+        resta = true;
+      }
+    )
+    parcial = termino()
+    {
+      resultado = resta ? Complejo.suma(resultado, Complejo.opuesto(parcial)) : Complejo.suma(resultado, parcial);
+    }
+  )*
+  {
+    return resultado;
+  }
+}
+
+//------- COMIENZO SUMAS-PRODUCTOS -------
+Complejo termino() :
+{
+  Complejo parcial;
+  Complejo resultado;
+  boolean division;
+}
+{
+  resultado = factor()
+  (
+    (
+      < MULTIPLY >
+      {
+        division = false;
+      }
+    | < DIVIDE >
+      {
+        division = true;
+      }
+    )
+    parcial = factor()
+    {
+      try
+      {
+        resultado = division ? Complejo.cociente(resultado, parcial) : Complejo.producto(resultado, parcial);
+      }
+      catch (Exception e)
+      {
+        resultado = new Complejo();
+        System.out.println("> Error");
+      }
+    }
+  )*
+  {
+    return resultado;
+  }
+}
+
+Complejo factor() :
+{
+  boolean negativo = false;
+  Complejo resultadoComplejo;
+  Complejo potencia;
+}
+{
+  (
+    (
+    < MINUS >
+    {
+      negativo = true;
+    }
+    )?
+    (
+      resultadoComplejo = numero()
+    |
+      (
+        "(" 
+        resultadoComplejo = expresion() 
+        ")"
+      )
+    )
+    {
+      if (negativo) resultadoComplejo = Complejo.opuesto(resultadoComplejo);
+    }
+  )
+  (
+    < ELEVADO > 
+    potencia = factor()
+    {
+      resultadoComplejo = Complejo.potencia(resultadoComplejo, potencia);
+    }
+  )?
+  {
+    return resultadoComplejo;
+  }
+}
+
+//------- COMIENZO NÚMEROS -------
+Complejo numero() :
+{
+  Token variableToken;
+  double num;
+}
+{
+  num = numeroNoSimbolico()
+  {
+    return new Complejo(num, 0);
+  }
+| < PI >
+  {
+    return new Complejo(3.141592653, 0);
+  }
+| < E >
+  {
+    return new Complejo(2.718281828, 0);
+  }
+| < I >
+  {
+    return new Complejo(0, 1);
+  }
+| variableToken = < VARIABLE >
+  {
+    return (variables.containsKey(variableToken.image)) ? variables.get(variableToken.image) : new Complejo();
+  }
+}
+
+double numeroNoSimbolico() :
+{
+  String numInt, numFrac = "", digitos;
+  double numIntDecimal = 0;
+  double numFracDecimal = 0;
+  int cifra;
+}
+{
+  numInt = cifras()
+  (
+    "." 
+    numFrac = cifras()
+  )?
+  (
+    < DECIMAL >
+    {
+      for (int i = 0; i < numInt.length(); i++)
+      {
+        if (numInt.toCharArray() [ i ] - 65 >= 0) cifra = numInt.toCharArray() [ i ] - 55;
+        else cifra = numInt.toCharArray() [ i ] - 48;
+        numIntDecimal = numIntDecimal * 10 + cifra;
+      }
+      for (int j = numFrac.length() - 1; j >= 0; j--)
+      {
+        if (numFrac.toCharArray() [ j ] - 65 >= 0) cifra = numFrac.toCharArray() [ j ] - 55;
+        else cifra = numFrac.toCharArray() [ j ] - 48;
+        numFracDecimal = numFracDecimal / 10 + cifra;
+      }
+      return numIntDecimal + numFracDecimal / 10;
+    }
+  | < OCTAL >
+    {
+      for (int i = 0; i < numInt.length(); i++)
+      {
+        if (numInt.toCharArray() [ i ] - 65 >= 0) cifra = numInt.toCharArray() [ i ] - 55;
+        else cifra = numInt.toCharArray() [ i ] - 48;
+        numIntDecimal = numIntDecimal * 8 + cifra;
+      }
+      for (int j = numFrac.length() - 1; j >= 0; j--)
+      {
+        if (numFrac.toCharArray() [ j ] - 65 >= 0) cifra = numFrac.toCharArray() [ j ] - 55;
+        else cifra = numFrac.toCharArray() [ j ] - 48;
+        numFracDecimal = numFracDecimal / 8 + cifra;
+      }
+      return numIntDecimal + numFracDecimal / 8;
+    }
+  | < BINARIO >
+    {
+      for (int i = 0; i < numInt.length(); i++)
+      {
+        if (numInt.toCharArray() [ i ] - 65 >= 0) cifra = numInt.toCharArray() [ i ] - 55;
+        else cifra = numInt.toCharArray() [ i ] - 48;
+        numIntDecimal = numIntDecimal * 2 + cifra;
+      }
+      for (int j = numFrac.length() - 1; j >= 0; j--)
+      {
+        if (numFrac.toCharArray() [ j ] - 65 >= 0) cifra = numFrac.toCharArray() [ j ] - 55;
+        else cifra = numFrac.toCharArray() [ j ] - 48;
+        numFracDecimal = numFracDecimal / 2 + cifra;
+      }
+      return numIntDecimal + numFracDecimal / 2;
+    }
+  | < HEXADECIMAL >
+    {
+      for (int i = 0; i < numInt.length(); i++)
+      {
+        if (numInt.toCharArray() [ i ] - 65 >= 0) cifra = numInt.toCharArray() [ i ] - 55;
+        else cifra = numInt.toCharArray() [ i ] - 48;
+        numIntDecimal = numIntDecimal * 16 + cifra;
+      }
+      for (int j = numFrac.length() - 1; j >= 0; j--)
+      {
+        if (numFrac.toCharArray() [ j ] - 65 >= 0) cifra = numFrac.toCharArray() [ j ] - 55;
+        else cifra = numFrac.toCharArray() [ j ] - 48;
+        numFracDecimal = numFracDecimal / 16 + cifra;
+      }
+      return numIntDecimal + numFracDecimal / 16;
+    }
+  )?
+  {
+    for (int i = 0; i < numInt.length(); i++)
+    {
+      if (numInt.toCharArray() [ i ] - 65 >= 0) cifra = numInt.toCharArray() [ i ] - 55;
+      else cifra = numInt.toCharArray() [ i ] - 48;
+      numIntDecimal = numIntDecimal * 10 + cifra;
+    }
+    for (int j = numFrac.length() - 1; j >= 0; j--)
+    {
+      if (numFrac.toCharArray() [ j ] - 65 >= 0) cifra = numFrac.toCharArray() [ j ] - 55;
+      else cifra = numFrac.toCharArray() [ j ] - 48;
+      numFracDecimal = numFracDecimal / 10 + cifra;
+    }
+    return numIntDecimal + numFracDecimal / 10;
+  }
+}
+
+String cifras() :
+{
+  Token d;
+  String num, post;
+}
+{
+  d = < DIGITO >
+  {
+    num = d.image;
+  }
+  (
+    post = cifras()
+    {
+      num += post;
+    }
+  )?
+  {
+    return num;
+  }
+}
+
+//------- COMIENZO CONDICIONAL: PRIMER TIPO -------
+Complejo condicional1() :
+{
+  Token compToken;
+  String comparador;
+  boolean cond = true;
+  Complejo exp1, exp2;
+  Complejo expEntonces;
+  Complejo expSiNo;
+  Complejo resultado = null;
+}
+{
+  "("
+  (
+    compToken = < G >
+  | compToken = < L >
+  | compToken = < GEQ >
+  | compToken = < LEQ >
+  | compToken = < EQ >
+  | compToken = < GR >
+  | compToken = < LR >
+  | compToken = < GEQR >
+  | compToken = < LEQR >
+  | compToken = < EQR >
+  | compToken = < GI >
+  | compToken = < LI >
+  | compToken = < GEQI >
+  | compToken = < LEQI >
+  | compToken = < EQI >
+  )
+  {
+    comparador = compToken.image;
+  }
+  "," 
+  exp1 = expresion() 
+  "," 
+  exp2 = expresion() 
+  ")"
+  {
+    cond = Calculadora.compara(comparador, exp1, exp2);
+  }
+  expEntonces = expresion()
+  {
+    if (cond) resultado = expEntonces;
+  }
+  ":" 
+  expSiNo = expresion()
+  {
+    if (!cond) resultado = expSiNo;
+  }
+  {
+    return resultado;
+  }
+}
+
+//------- COMIENZO CONDICIONAL: SEGUNDO TIPO -------
+Complejo condicional2() :
+{
+  String comparador;
+  Complejo exp1, exp2;
+  Complejo entonces = new Complejo(), sino;
+  int i = 0;
+  boolean condicion = false;
+  boolean condiciones [ ] = new boolean [ 50 ];
+  Complejo entonceses [ ] = new Complejo [ 50 ];
+}
+{
+  (
+    < IF > "(" 
+    exp1 = expresion()
+    (
+      comparador = < G >.image
+    | comparador = < L >.image
+    | comparador = < GEQ >.image
+    | comparador = < LEQ >.image
+    | comparador = < EQ >.image
+    | comparador = < GR >.image
+    | comparador = < LR >.image
+    | comparador = < GEQR >.image
+    | comparador = < LEQR >.image
+    | comparador = < EQR >.image
+    | comparador = < GI >.image
+    | comparador = < LI >.image
+    | comparador = < GEQI >.image
+    | comparador = < LEQI >.image
+    | comparador = < EQI >.image
+    )
+    exp2 = expresion() 
+    ")" < THEN > 
+    entonceses [ i ] = expresion()
+  )
+  {		
+    condiciones [ i ] = Calculadora.compara(comparador, exp1, exp2);
+    ++i;
+  }
+  (
+    < ELIF > "(" exp1 = expresion()
+    (
+      comparador = < G >.image
+    | comparador = < L >.image
+    | comparador = < GEQ >.image
+    | comparador = < LEQ >.image
+    | comparador = < EQ >.image
+    | comparador = < GR >.image
+    | comparador = < LR >.image
+    | comparador = < GEQR >.image
+    | comparador = < LEQR >.image
+    | comparador = < EQR >.image
+    | comparador = < GI >.image
+    | comparador = < LI >.image
+    | comparador = < GEQI >.image
+    | comparador = < LEQI >.image
+    | comparador = < EQI >.image
+    )
+    exp2 = expresion() ")" < THEN > 
+    entonceses [ i ] = expresion()
+    {		
+      condiciones [ i ] = Calculadora.compara(comparador, exp1, exp2);
+      ++i;
+    }
+  )*	
+  < ELSE > 
+  sino = expresion()
+  {
+    for (int j = 0; j < condiciones.length; ++j)
+    {
+      if (condiciones [ j ])
+      {
+        condicion = true;
+        entonces = entonceses [ j ];
+        break;
+      }
+    }
+    if (condicion) 
+    return entonces;
+    else 
+    return sino;
+  }
+}
