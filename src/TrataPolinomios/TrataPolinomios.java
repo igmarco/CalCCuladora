@@ -61,15 +61,15 @@ public class TrataPolinomios implements TrataPolinomiosConstants {
     case MINUS:
     case TINDEPENDIENTE:
     case ENTERO:
+    case 11:
       polArr = polinomio();
       jj_consume_token(11);
     for(Double coef : polArr) System.out.println("> " + coef);
     {if (true) return 0;}
       break;
-    case 11:
-      jj_consume_token(11);
-    {if (true) return 1;}
-      break;
+//      jj_consume_token(11);
+//    {if (true) return 1;}
+//      break;
     default:
       jj_la1[0] = jj_gen;
       jj_consume_token(-1);
@@ -89,6 +89,15 @@ public class TrataPolinomios implements TrataPolinomiosConstants {
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case PLUS:
+      case MINUS:
+        ;
+        break;
+      default:
+        jj_la1[1] = jj_gen;
+        break label_1;
+      }
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case PLUS:
         jj_consume_token(PLUS);
         break;
       case MINUS:
@@ -96,7 +105,7 @@ public class TrataPolinomios implements TrataPolinomiosConstants {
         resta = true;
         break;
       default:
-        jj_la1[1] = jj_gen;
+        jj_la1[2] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -105,15 +114,6 @@ public class TrataPolinomios implements TrataPolinomiosConstants {
       resta = false;
       if (pol.containsKey(mon.grado)) pol.replace(mon.grado, pol.get(mon.grado) + mon.coeficiente);
       else pol.put(mon.grado, mon.coeficiente);
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case PLUS:
-      case MINUS:
-        ;
-        break;
-      default:
-        jj_la1[2] = jj_gen;
-        break label_1;
-      }
     }
     Set < Integer > grados = pol.keySet();
     Integer maximo = 0;

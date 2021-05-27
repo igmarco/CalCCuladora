@@ -42,6 +42,8 @@ public class Calculadora
     Calculadora parser = new Calculadora(System.in);
     while (true)
     {
+      
+      System.out.println("");
       System.out.println("---------------------------------------------------------------------------------------------------------------");
       System.out.println("------------------------------------------------| CALCULADORA |------------------------------------------------");
       System.out.println("---------------------------------------------------------------------------------------------------------------");
@@ -247,6 +249,8 @@ TOKEN : /* EQUAL */
 TOKEN : /* POLINOMIOS */
 {
   < ROOT : "#root" >
+| < EXTENDEDROOT : "#extendedRoot" >
+| < SINGLEROOT : "#singleRoot" >
 | < TINDEPENDIENTE : "X" >
 }
 
@@ -287,7 +291,11 @@ void sesion() :
       System.out.println("--------------------- ([comparador],[expresi\u00f3n],[expresi\u00f3n]) [expresi\u00f3nS\u00ed] : [expresi\u00f3nNo] --------------------");
       System.out.println("------------ Por supuesto, soporta anidamiento de condicionales (incluso dentro de ----------------------------");
       System.out.println("------------ las propias condiciones). ------------------------------------------------------------------------");
-	  System.out.println("------------ Trabajando para que admita raíces de polinomios con \"#root(polinomio)\". ------------------------- ");
+	  System.out.println("------------ Permite hallar raíces de polinomios: ------------------------------------------------------------ ");
+	  System.out.println("--------------------- \"#root(polinomio)\" halla todas las raíces.  -------------------------------------------- ");
+	  System.out.println("--------------------- \"#extendedRoot(polinomio)\" halla todas las raíces y ofrece información adicional.  ----- ");
+	  System.out.println("--------------------- \"#singleRoot(polinomio, real)\" halla la raíz más cercana al real informado (puede) ----- ");
+	  System.out.println("--------------------- usarse como valor para expresiones y condicionales. ------------------------------------ ");
       System.out.println("---------------------------------------------------------------------------------------------------------------");
     }
   | resultado = linea()
@@ -321,6 +329,11 @@ String linea() :
     }
   | LOOKAHEAD(2)
     raicesPolinomio()
+    {
+      resultado = "--- Fin de la información sobre las raíces del polinomio. ---";
+    }
+  | LOOKAHEAD(2)
+    raicesPolinomioExtendido()
     {
       resultado = "--- Fin de la información sobre las raíces del polinomio. ---";
     }
@@ -506,6 +519,10 @@ Complejo numero() :
   {
     return (variables.containsKey(variableToken.image)) ? variables.get(variableToken.image) : new Complejo();
   }
+| num = raizPolinomioSimple()
+{
+	return new Complejo(num, 0);
+}
 }
 
 double numeroNoSimbolico() :
@@ -785,9 +802,124 @@ void raicesPolinomio() :
 		out.flush();
 		DataInputStream in = new DataInputStream(cliente.getInputStream());
 		String cadena = in.readLine();
-		while(cadena!=null) {
+		//System.out.println(cadena);
+
+		for(int i = 0; i < 5; i++) {
+			cadena = in.readLine();
+		}
+
+		if(cadena.equals("No existen raices reales")) System.out.println("No existen raíces reales para el polinomio.");
+		else {
+			cadena = in.readLine();
+
+			while(cadena!=null) {
+				System.out.println(cadena);
+				cadena = in.readLine();
+			}
+		}
+		
+	}catch(IOException e) {
+	    System.out.println("Error en la conexión con el servidor de cálculo de raíces.");
+		//e.printStackTrace();
+	}
+  }
+}
+
+void raicesPolinomioExtendido() :
+{
+  ArrayList<Double> pol;
+}
+{
+  < EXTENDEDROOT >
+  "("
+	pol = polinomio()
+  ")"
+  {
+	//Aquí hallo las raíces
+	try {
+		Socket cliente = new Socket("localhost",48500);
+		ObjectOutputStream out = new ObjectOutputStream(cliente.getOutputStream());
+		out.writeObject(pol);
+		out.flush();
+		DataInputStream in = new DataInputStream(cliente.getInputStream());
+		String cadena = in.readLine();
+		while(cadena!=null && !cadena.equals("No existen raices reales")) {
 			System.out.println(cadena);
 			cadena = in.readLine();
+		}
+
+		if(cadena.equals("No existen raices reales")) System.out.println("No existen raíces reales para el polinomio.");
+		
+	}catch(IOException e) {
+	    System.out.println("Error en la conexión con el servidor de cálculo de raíces.");
+		//e.printStackTrace();
+	}
+  }
+}
+
+double raizPolinomioSimple() :
+{
+  ArrayList<Double> pol;
+  ArrayList<String> raices = new ArrayList<String>();
+  double raizDevuelta;
+  double diferencia;
+
+  double numeroSimilar;
+
+  boolean menos = false;
+}
+{
+  < SINGLEROOT >
+  "("
+	pol = polinomio()
+	","
+	(		< MINUS >
+		{
+			menos = true;
+		}
+	)?
+	numeroSimilar = numeroNoSimbolico()
+	{
+		if(menos) numeroSimilar = -numeroSimilar;
+	}
+  ")"
+  {
+	//Aquí hallo las raíces
+	try {
+		Socket cliente = new Socket("localhost",48500);
+		ObjectOutputStream out = new ObjectOutputStream(cliente.getOutputStream());
+		out.writeObject(pol);
+		out.flush();
+		DataInputStream in = new DataInputStream(cliente.getInputStream());
+		String cadena = in.readLine();
+		//System.out.println(cadena);
+
+		for(int i = 0; i < 5; i++) {
+			cadena = in.readLine();
+		}
+
+		if(cadena.equals("No existen raices reales")) System.out.println("No existen raíces reales para el polinomio.");
+		else {
+			cadena = in.readLine();
+
+			while(cadena!=null) {
+//				System.out.println(cadena);
+				raices.add(cadena.split(" Aprox: ")[0]);
+				cadena = in.readLine();
+			}
+		}
+
+		if(!raices.isEmpty()) {
+			raizDevuelta = Double.parseDouble(raices.get(0));
+			diferencia = Math.abs(Double.parseDouble(raices.get(0))-numeroSimilar);
+			
+			for(String raiz : raices) {
+			  if(Math.abs(Double.parseDouble(raiz)-numeroSimilar) <  diferencia) {
+				raizDevuelta = Double.parseDouble(raiz);
+				diferencia = Math.abs(Double.parseDouble(raiz)-numeroSimilar);
+			  }
+			}
+			return raizDevuelta;
 		}
 		
 	}catch(IOException e) {
@@ -805,11 +937,19 @@ ArrayList < Double > polinomio() :
   HashMap < Integer, Double > pol = new HashMap < Integer, Double > ();
   ArrayList < Double > polArr = new ArrayList < Double > ();
   boolean resta = false;
+
+  boolean menos = false;
 }
 {
+  (	< MINUS >
+	{
+		menos = true;
+	}
+  )?
   mon = monomio()
   {
-    pol.put(mon.grado, mon.coeficiente);
+    if(menos) pol.put(mon.grado, - mon.coeficiente);
+    else pol.put(mon.grado, mon.coeficiente);
   }
   (
     (

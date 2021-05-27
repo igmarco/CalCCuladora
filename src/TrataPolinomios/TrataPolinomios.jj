@@ -135,7 +135,7 @@ ArrayList < Double > polinomio() :
       if (pol.containsKey(mon.grado)) pol.replace(mon.grado, pol.get(mon.grado) + mon.coeficiente);
       else pol.put(mon.grado, mon.coeficiente);
     }
-  )+
+  )*
 )
   {
     Set < Integer > grados = pol.keySet();
