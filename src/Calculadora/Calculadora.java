@@ -2,7 +2,28 @@
 package Calculadora;
 import Tools.Complejo;
 import Tools.ExcepcionDivideCero;
-import java.util.HashMap;
+
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+
+import java.util.*;
+
+class Monomio
+{
+  public Double coeficiente;
+
+  public Integer grado;
+
+  public Monomio(Double c, Integer g)
+  {
+    this.coeficiente = c;
+    this.grado = g;
+  }
+}
+
+;
 
 public class Calculadora implements CalculadoraConstants {
   static HashMap < String, Complejo > variables = new HashMap < String, Complejo > ();
@@ -135,8 +156,9 @@ public class Calculadora implements CalculadoraConstants {
       case I:
       case E:
       case PI:
+      case ROOT:
       case HELP:
-      case 42:
+      case 46:
         ;
         break;
       default:
@@ -165,6 +187,7 @@ public class Calculadora implements CalculadoraConstants {
       System.out.println("--------------------- ([comparador],[expresi\u00f3n],[expresi\u00f3n]) [expresi\u00f3nS\u00ed] : [expresi\u00f3nNo] --------------------");
       System.out.println("------------ Por supuesto, soporta anidamiento de condicionales (incluso dentro de ----------------------------");
       System.out.println("------------ las propias condiciones). ------------------------------------------------------------------------");
+          System.out.println("------------ Trabajando para que admita ra\u00edces de polinomios con \u005c"#root(polinomio)\u005c". ------------------------- ");
       System.out.println("---------------------------------------------------------------------------------------------------------------");
         break;
       case MINUS:
@@ -174,7 +197,8 @@ public class Calculadora implements CalculadoraConstants {
       case I:
       case E:
       case PI:
-      case 42:
+      case ROOT:
+      case 46:
         resultado = linea();
       System.out.println("> " + resultado);
         break;
@@ -199,13 +223,8 @@ public class Calculadora implements CalculadoraConstants {
       variables.replace("$", resultadoCmplx);
       resultado = resultadoCmplx.toString();
     } else if (jj_2_3(2)) {
-      resultadoCmplx = condicional1();
-      variables.replace("$", resultadoCmplx);
-      resultado = resultadoCmplx.toString();
-    } else if (jj_2_4(2)) {
-      resultadoCmplx = condicional2();
-      variables.replace("$", resultadoCmplx);
-      resultado = resultadoCmplx.toString();
+      raicesPolinomio();
+      resultado = "--- Fin de la informaci\u00f3n sobre las ra\u00edces del polinomio. ---";
     } else {
       jj_consume_token(-1);
       throw new ParseException();
@@ -232,11 +251,11 @@ public class Calculadora implements CalculadoraConstants {
 //------- COMIENZO EXPRESIÓN GENERAL (EXPRESIÓN NUMÉRICA O CONDICIONAL) -------
   static final public Complejo expresion() throws ParseException {
   Complejo resultado;
-    if (jj_2_5(2)) {
+    if (jj_2_4(2)) {
       resultado = expresionNum();
-    } else if (jj_2_6(2)) {
+    } else if (jj_2_5(2)) {
       resultado = condicional1();
-    } else if (jj_2_7(2)) {
+    } else if (jj_2_6(2)) {
       resultado = condicional2();
     } else {
       jj_consume_token(-1);
@@ -351,10 +370,10 @@ public class Calculadora implements CalculadoraConstants {
     case PI:
       resultadoComplejo = numero();
       break;
-    case 42:
-      jj_consume_token(42);
+    case 46:
+      jj_consume_token(46);
       resultadoComplejo = expresion();
-      jj_consume_token(43);
+      jj_consume_token(47);
       break;
     default:
       jj_la1[7] = jj_gen;
@@ -416,8 +435,8 @@ public class Calculadora implements CalculadoraConstants {
   int cifra;
     numInt = cifras();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 44:
-      jj_consume_token(44);
+    case 48:
+      jj_consume_token(48);
       numFrac = cifras();
       break;
     default:
@@ -547,7 +566,7 @@ public class Calculadora implements CalculadoraConstants {
   Complejo expEntonces;
   Complejo expSiNo;
   Complejo resultado = null;
-    jj_consume_token(42);
+    jj_consume_token(46);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case G:
       compToken = jj_consume_token(G);
@@ -600,15 +619,15 @@ public class Calculadora implements CalculadoraConstants {
       throw new ParseException();
     }
     comparador = compToken.image;
-    jj_consume_token(45);
+    jj_consume_token(49);
     exp1 = expresion();
-    jj_consume_token(45);
+    jj_consume_token(49);
     exp2 = expresion();
-    jj_consume_token(43);
+    jj_consume_token(47);
     cond = Calculadora.compara(comparador, exp1, exp2);
     expEntonces = expresion();
     if (cond) resultado = expEntonces;
-    jj_consume_token(46);
+    jj_consume_token(50);
     expSiNo = expresion();
     if (!cond) resultado = expSiNo;
     {if (true) return resultado;}
@@ -625,7 +644,7 @@ public class Calculadora implements CalculadoraConstants {
   boolean condiciones [ ] = new boolean [ 50 ];
   Complejo entonceses [ ] = new Complejo [ 50 ];
     jj_consume_token(IF);
-    jj_consume_token(42);
+    jj_consume_token(46);
     exp1 = expresion();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case G:
@@ -679,7 +698,7 @@ public class Calculadora implements CalculadoraConstants {
       throw new ParseException();
     }
     exp2 = expresion();
-    jj_consume_token(43);
+    jj_consume_token(47);
     jj_consume_token(THEN);
     entonceses [ i ] = expresion();
     condiciones [ i ] = Calculadora.compara(comparador, exp1, exp2);
@@ -695,7 +714,7 @@ public class Calculadora implements CalculadoraConstants {
         break label_4;
       }
       jj_consume_token(ELIF);
-      jj_consume_token(42);
+      jj_consume_token(46);
       exp1 = expresion();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case G:
@@ -749,7 +768,7 @@ public class Calculadora implements CalculadoraConstants {
         throw new ParseException();
       }
       exp2 = expresion();
-      jj_consume_token(43);
+      jj_consume_token(47);
       jj_consume_token(THEN);
       entonceses [ i ] = expresion();
       condiciones [ i ] = Calculadora.compara(comparador, exp1, exp2);
@@ -770,6 +789,137 @@ public class Calculadora implements CalculadoraConstants {
     {if (true) return entonces;}
     else
     {if (true) return sino;}
+    throw new Error("Missing return statement in function");
+  }
+
+//------- COMIENZO RAÍCES DE POLINOMIOS -------
+  static final public void raicesPolinomio() throws ParseException {
+  ArrayList<Double> pol;
+    jj_consume_token(ROOT);
+    jj_consume_token(46);
+    pol = polinomio();
+    jj_consume_token(47);
+        //Aquí hallo las raíces
+        try {
+                Socket cliente = new Socket("localhost",48500);
+                ObjectOutputStream out = new ObjectOutputStream(cliente.getOutputStream());
+                out.writeObject(pol);
+                out.flush();
+                DataInputStream in = new DataInputStream(cliente.getInputStream());
+                String cadena = in.readLine();
+                while(cadena!=null) {
+                        System.out.println(cadena);
+                        cadena = in.readLine();
+                }
+
+        }catch(IOException e) {
+            System.out.println("Error en la conexi\u00f3n con el servidor de c\u00e1lculo de ra\u00edces.");
+                //e.printStackTrace();
+        }
+  }
+
+//------- COMIENZO POLINOMIO -------
+  static final public ArrayList < Double > polinomio() throws ParseException {
+  Monomio mon;
+  HashMap < Integer, Double > pol = new HashMap < Integer, Double > ();
+  ArrayList < Double > polArr = new ArrayList < Double > ();
+  boolean resta = false;
+    mon = monomio();
+    pol.put(mon.grado, mon.coeficiente);
+    label_5:
+    while (true) {
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case PLUS:
+      case MINUS:
+        ;
+        break;
+      default:
+        jj_la1[18] = jj_gen;
+        break label_5;
+      }
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case PLUS:
+        jj_consume_token(PLUS);
+        break;
+      case MINUS:
+        jj_consume_token(MINUS);
+        resta = true;
+        break;
+      default:
+        jj_la1[19] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
+      }
+      mon = monomio();
+      if (resta) mon.coeficiente = - mon.coeficiente;
+      resta = false;
+      if (pol.containsKey(mon.grado)) pol.replace(mon.grado, pol.get(mon.grado) + mon.coeficiente);
+      else pol.put(mon.grado, mon.coeficiente);
+    }
+    Set < Integer > grados = pol.keySet();
+    Integer maximo = 0;
+    for (Integer g : grados) if (g > maximo) maximo = g;
+    for (Integer grado = 0; grado <= maximo; grado++) polArr.add(pol.containsKey(grado) ? pol.get(grado) : (Integer) 0);
+    {if (true) return polArr;}
+    throw new Error("Missing return statement in function");
+  }
+
+  static final public Monomio monomio() throws ParseException {
+  Token gradoToken, coefEnteroToken, coefDecimalesToken;
+  int coefDecimalesEntero;
+  Double coefDecimales = 0.0;
+  Monomio mon = new Monomio
+  (
+    (Double) 1.0, (Integer) 0
+  )
+  ;
+
+  String numInt,numFrac;
+  int numIntDecimal = 0;
+  int cifra;
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case DIGITO:
+      mon.coeficiente = numeroNoSimbolico();
+      break;
+    default:
+      jj_la1[20] = jj_gen;
+      ;
+    }
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case TINDEPENDIENTE:
+      jj_consume_token(TINDEPENDIENTE);
+      mon.grado = 1;
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case ELEVADO:
+        jj_consume_token(ELEVADO);
+        numInt = cifras();
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case 48:
+          jj_consume_token(48);
+          numFrac = cifras();
+          break;
+        default:
+          jj_la1[21] = jj_gen;
+          ;
+        }
+      for (int i = 0; i < numInt.length(); i++)
+      {
+        if (numInt.toCharArray() [ i ] - 65 >= 0) cifra = numInt.toCharArray() [ i ] - 55;
+        else cifra = numInt.toCharArray() [ i ] - 48;
+        numIntDecimal = numIntDecimal * 10 + cifra;
+      }
+      mon.grado = numIntDecimal;
+        break;
+      default:
+        jj_la1[22] = jj_gen;
+        ;
+      }
+      break;
+    default:
+      jj_la1[23] = jj_gen;
+      ;
+    }
+    {if (true) return mon;}
     throw new Error("Missing return statement in function");
   }
 
@@ -815,147 +965,71 @@ public class Calculadora implements CalculadoraConstants {
     finally { jj_save(5, xla); }
   }
 
-  static private boolean jj_2_7(int xla) {
-    jj_la = xla; jj_lastpos = jj_scanpos = token;
-    try { return !jj_3_7(); }
-    catch(LookaheadSuccess ls) { return true; }
-    finally { jj_save(6, xla); }
-  }
-
-  static private boolean jj_3R_24() {
-    if (jj_scan_token(PI)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_15() {
-    if (jj_scan_token(MINUS)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_22() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_23()) {
-    jj_scanpos = xsp;
-    if (jj_3R_24()) {
-    jj_scanpos = xsp;
-    if (jj_3R_25()) {
-    jj_scanpos = xsp;
-    if (jj_3R_26()) {
-    jj_scanpos = xsp;
-    if (jj_3R_27()) return true;
-    }
-    }
-    }
-    }
-    return false;
-  }
-
-  static private boolean jj_3R_23() {
-    if (jj_3R_28()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_14() {
-    if (jj_scan_token(PLUS)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_11() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_14()) {
-    jj_scanpos = xsp;
-    if (jj_3R_15()) return true;
-    }
-    return false;
-  }
-
-  static private boolean jj_3R_36() {
-    if (jj_scan_token(HEXADECIMAL)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_9() {
-    if (jj_3R_10()) return true;
-    Token xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3R_11()) { jj_scanpos = xsp; break; }
-    }
-    return false;
-  }
-
-  static private boolean jj_3R_19() {
-    if (jj_scan_token(ELEVADO)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_35() {
+  static private boolean jj_3R_37() {
     if (jj_scan_token(BINARIO)) return true;
     return false;
   }
 
-  static private boolean jj_3_7() {
-    if (jj_3R_8()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_18() {
-    if (jj_scan_token(42)) return true;
-    if (jj_3R_6()) return true;
-    return false;
-  }
-
   static private boolean jj_3_6() {
+    if (jj_3R_11()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_20() {
+    if (jj_scan_token(46)) return true;
     if (jj_3R_7()) return true;
     return false;
   }
 
-  static private boolean jj_3R_17() {
-    if (jj_3R_22()) return true;
+  static private boolean jj_3_5() {
+    if (jj_3R_10()) return true;
     return false;
   }
 
-  static private boolean jj_3_5() {
+  static private boolean jj_3R_19() {
+    if (jj_3R_24()) return true;
+    return false;
+  }
+
+  static private boolean jj_3_4() {
     if (jj_3R_9()) return true;
     return false;
   }
 
-  static private boolean jj_3R_6() {
+  static private boolean jj_3R_7() {
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3_4()) {
+    jj_scanpos = xsp;
     if (jj_3_5()) {
     jj_scanpos = xsp;
-    if (jj_3_6()) {
-    jj_scanpos = xsp;
-    if (jj_3_7()) return true;
+    if (jj_3_6()) return true;
     }
     }
     return false;
   }
 
-  static private boolean jj_3R_16() {
+  static private boolean jj_3R_18() {
     if (jj_scan_token(MINUS)) return true;
     return false;
   }
 
-  static private boolean jj_3R_12() {
+  static private boolean jj_3R_14() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_16()) jj_scanpos = xsp;
+    if (jj_3R_18()) jj_scanpos = xsp;
     xsp = jj_scanpos;
-    if (jj_3R_17()) {
+    if (jj_3R_19()) {
     jj_scanpos = xsp;
-    if (jj_3R_18()) return true;
+    if (jj_3R_20()) return true;
     }
     xsp = jj_scanpos;
-    if (jj_3R_19()) jj_scanpos = xsp;
+    if (jj_3R_21()) jj_scanpos = xsp;
     return false;
   }
 
-  static private boolean jj_3R_7() {
-    if (jj_scan_token(42)) return true;
+  static private boolean jj_3R_10() {
+    if (jj_scan_token(46)) return true;
     Token xsp;
     xsp = jj_scanpos;
     if (jj_scan_token(10)) {
@@ -1004,92 +1078,193 @@ public class Calculadora implements CalculadoraConstants {
     return false;
   }
 
-  static private boolean jj_3R_34() {
+  static private boolean jj_3R_36() {
     if (jj_scan_token(OCTAL)) return true;
     return false;
   }
 
-  static private boolean jj_3R_5() {
+  static private boolean jj_3R_6() {
     if (jj_scan_token(VARIABLE)) return true;
     if (jj_scan_token(IGUAL)) return true;
     return false;
   }
 
-  static private boolean jj_3R_33() {
+  static private boolean jj_3R_35() {
     if (jj_scan_token(DECIMAL)) return true;
     return false;
   }
 
-  static private boolean jj_3R_31() {
+  static private boolean jj_3R_33() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_33()) {
-    jj_scanpos = xsp;
-    if (jj_3R_34()) {
-    jj_scanpos = xsp;
     if (jj_3R_35()) {
     jj_scanpos = xsp;
-    if (jj_3R_36()) return true;
+    if (jj_3R_36()) {
+    jj_scanpos = xsp;
+    if (jj_3R_37()) {
+    jj_scanpos = xsp;
+    if (jj_3R_38()) return true;
     }
     }
     }
+    return false;
+  }
+
+  static private boolean jj_3R_34() {
+    if (jj_3R_31()) return true;
     return false;
   }
 
   static private boolean jj_3R_32() {
-    if (jj_3R_29()) return true;
+    if (jj_scan_token(48)) return true;
     return false;
   }
 
-  static private boolean jj_3R_30() {
-    if (jj_scan_token(44)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_21() {
+  static private boolean jj_3R_23() {
     if (jj_scan_token(DIVIDE)) return true;
     return false;
   }
 
-  static private boolean jj_3R_28() {
-    if (jj_3R_29()) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_30()) jj_scanpos = xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_31()) jj_scanpos = xsp;
-    return false;
-  }
-
-  static private boolean jj_3R_29() {
-    if (jj_scan_token(DIGITO)) return true;
+  static private boolean jj_3R_30() {
+    if (jj_3R_31()) return true;
     Token xsp;
     xsp = jj_scanpos;
     if (jj_3R_32()) jj_scanpos = xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_33()) jj_scanpos = xsp;
     return false;
   }
 
-  static private boolean jj_3R_20() {
+  static private boolean jj_3R_31() {
+    if (jj_scan_token(DIGITO)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_34()) jj_scanpos = xsp;
+    return false;
+  }
+
+  static private boolean jj_3R_22() {
     if (jj_scan_token(MULTIPLY)) return true;
     return false;
   }
 
-  static private boolean jj_3_4() {
+  static private boolean jj_3_3() {
     if (jj_3R_8()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_15() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_22()) {
+    jj_scanpos = xsp;
+    if (jj_3R_23()) return true;
+    }
+    return false;
+  }
+
+  static private boolean jj_3_2() {
+    if (jj_3R_7()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_12() {
+    if (jj_3R_14()) return true;
+    Token xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_15()) { jj_scanpos = xsp; break; }
+    }
+    return false;
+  }
+
+  static private boolean jj_3R_29() {
+    if (jj_scan_token(VARIABLE)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_11() {
+    if (jj_scan_token(IF)) return true;
+    if (jj_scan_token(46)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_1() {
+    if (jj_3R_6()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_28() {
+    if (jj_scan_token(I)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_27() {
+    if (jj_scan_token(E)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_26() {
+    if (jj_scan_token(PI)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_8() {
+    if (jj_scan_token(ROOT)) return true;
+    if (jj_scan_token(46)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_17() {
+    if (jj_scan_token(MINUS)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_24() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_25()) {
+    jj_scanpos = xsp;
+    if (jj_3R_26()) {
+    jj_scanpos = xsp;
+    if (jj_3R_27()) {
+    jj_scanpos = xsp;
+    if (jj_3R_28()) {
+    jj_scanpos = xsp;
+    if (jj_3R_29()) return true;
+    }
+    }
+    }
+    }
+    return false;
+  }
+
+  static private boolean jj_3R_25() {
+    if (jj_3R_30()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_16() {
+    if (jj_scan_token(PLUS)) return true;
     return false;
   }
 
   static private boolean jj_3R_13() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_20()) {
+    if (jj_3R_16()) {
     jj_scanpos = xsp;
-    if (jj_3R_21()) return true;
+    if (jj_3R_17()) return true;
     }
     return false;
   }
 
-  static private boolean jj_3R_10() {
+  static private boolean jj_3R_38() {
+    if (jj_scan_token(HEXADECIMAL)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_9() {
     if (jj_3R_12()) return true;
     Token xsp;
     while (true) {
@@ -1099,39 +1274,8 @@ public class Calculadora implements CalculadoraConstants {
     return false;
   }
 
-  static private boolean jj_3_3() {
-    if (jj_3R_7()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_27() {
-    if (jj_scan_token(VARIABLE)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_8() {
-    if (jj_scan_token(IF)) return true;
-    if (jj_scan_token(42)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_2() {
-    if (jj_3R_6()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_26() {
-    if (jj_scan_token(I)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_25() {
-    if (jj_scan_token(E)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_1() {
-    if (jj_3R_5()) return true;
+  static private boolean jj_3R_21() {
+    if (jj_scan_token(ELEVADO)) return true;
     return false;
   }
 
@@ -1147,7 +1291,7 @@ public class Calculadora implements CalculadoraConstants {
   static private Token jj_scanpos, jj_lastpos;
   static private int jj_la;
   static private int jj_gen;
-  static final private int[] jj_la1 = new int[18];
+  static final private int[] jj_la1 = new int[24];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static {
@@ -1155,12 +1299,12 @@ public class Calculadora implements CalculadoraConstants {
       jj_la1_init_1();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x2000040,0x2000040,0x60,0x60,0x180,0x180,0x40,0x0,0x200,0x0,0x0,0xc0000000,0xc0000000,0x0,0x1fffc00,0x1fffc00,0x4000000,0x1fffc00,};
+      jj_la1_0 = new int[] {0x2000040,0x2000040,0x60,0x60,0x180,0x180,0x40,0x0,0x200,0x0,0x0,0xc0000000,0xc0000000,0x0,0x1fffc00,0x1fffc00,0x4000000,0x1fffc00,0x60,0x60,0x0,0x0,0x200,0x0,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x6ec,0x6ec,0x0,0x0,0x0,0x0,0x0,0x4ec,0x0,0xec,0x1000,0x3,0x3,0x4,0x0,0x0,0x0,0x0,};
+      jj_la1_1 = new int[] {0x6ba4,0x6ba4,0x0,0x0,0x0,0x0,0x0,0x43a4,0x0,0x3a4,0x10000,0x3,0x3,0x4,0x0,0x0,0x0,0x0,0x0,0x0,0x4,0x10000,0x0,0x1000,};
    }
-  static final private JJCalls[] jj_2_rtns = new JJCalls[7];
+  static final private JJCalls[] jj_2_rtns = new JJCalls[6];
   static private boolean jj_rescan = false;
   static private int jj_gc = 0;
 
@@ -1182,7 +1326,7 @@ public class Calculadora implements CalculadoraConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 18; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 24; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1197,7 +1341,7 @@ public class Calculadora implements CalculadoraConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 18; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 24; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1215,7 +1359,7 @@ public class Calculadora implements CalculadoraConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 18; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 24; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1226,7 +1370,7 @@ public class Calculadora implements CalculadoraConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 18; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 24; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1243,7 +1387,7 @@ public class Calculadora implements CalculadoraConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 18; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 24; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1253,7 +1397,7 @@ public class Calculadora implements CalculadoraConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 18; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 24; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1365,12 +1509,12 @@ public class Calculadora implements CalculadoraConstants {
   /** Generate ParseException. */
   static public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[47];
+    boolean[] la1tokens = new boolean[51];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 18; i++) {
+    for (int i = 0; i < 24; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
@@ -1382,7 +1526,7 @@ public class Calculadora implements CalculadoraConstants {
         }
       }
     }
-    for (int i = 0; i < 47; i++) {
+    for (int i = 0; i < 51; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;
@@ -1409,7 +1553,7 @@ public class Calculadora implements CalculadoraConstants {
 
   static private void jj_rescan_token() {
     jj_rescan = true;
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i < 6; i++) {
     try {
       JJCalls p = jj_2_rtns[i];
       do {
@@ -1422,7 +1566,6 @@ public class Calculadora implements CalculadoraConstants {
             case 3: jj_3_4(); break;
             case 4: jj_3_5(); break;
             case 5: jj_3_6(); break;
-            case 6: jj_3_7(); break;
           }
         }
         p = p.next;

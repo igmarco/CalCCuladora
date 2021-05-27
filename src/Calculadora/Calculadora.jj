@@ -10,7 +10,28 @@ PARSER_BEGIN(Calculadora)
 package Calculadora;
 import Tools.Complejo;
 import Tools.ExcepcionDivideCero;
-import java.util.HashMap;
+
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+
+import java.util.*;
+
+class Monomio
+{
+  public Double coeficiente;
+
+  public Integer grado;
+
+  public Monomio(Double c, Integer g)
+  {
+    this.coeficiente = c;
+    this.grado = g;
+  }
+}
+
+;
 
 public class Calculadora
 {
@@ -199,6 +220,8 @@ TOKEN : /* BASE */
 TOKEN : /* DIGITS */
 {
   < DIGITO : [ "0"-"9", "A"-"F" ] >
+| < DIGITODECIMAL : [ "0"-"9" ] >
+| < ENTERO : [ "0"-"9" ] >
 }
 
 TOKEN : /* VARIABLES */
@@ -223,8 +246,8 @@ TOKEN : /* EQUAL */
 
 TOKEN : /* POLINOMIOS */
 {
-  < ROOT : "root" >
-  < TINDEPENDIENTE : "X" >
+  < ROOT : "#root" >
+| < TINDEPENDIENTE : "X" >
 }
 
 TOKEN : /* HELP */
@@ -758,7 +781,7 @@ void raicesPolinomio() :
 	try {
 		Socket cliente = new Socket("localhost",48500);
 		ObjectOutputStream out = new ObjectOutputStream(cliente.getOutputStream());
-		out.writeObject(polinomio);
+		out.writeObject(pol);
 		out.flush();
 		DataInputStream in = new DataInputStream(cliente.getInputStream());
 		String cadena = in.readLine();
@@ -768,8 +791,8 @@ void raicesPolinomio() :
 		}
 		
 	}catch(IOException e) {
-	    System.out.println("Error en la conexión con el servidor de cálculo de raíces:");
-		e.printStackTrace();
+	    System.out.println("Error en la conexión con el servidor de cálculo de raíces.");
+		//e.printStackTrace();
 	}
   }
 }
@@ -803,7 +826,7 @@ ArrayList < Double > polinomio() :
       if (pol.containsKey(mon.grado)) pol.replace(mon.grado, pol.get(mon.grado) + mon.coeficiente);
       else pol.put(mon.grado, mon.coeficiente);
     }
-  )+
+  )*
   {
     Set < Integer > grados = pol.keySet();
     Integer maximo = 0;
@@ -816,28 +839,21 @@ ArrayList < Double > polinomio() :
 Monomio monomio() :
 {
   Token gradoToken, coefEnteroToken, coefDecimalesToken;
+  int coefDecimalesEntero;
   Double coefDecimales = 0.0;
   Monomio mon = new Monomio
   (
     (Double) 1.0, (Integer) 0
   )
   ;
+
+  String numInt,numFrac;
+  int numIntDecimal = 0;
+  int cifra;
 }
 {
   (
-    coefEnteroToken = < ENTERO >
-    {
-      mon.coeficiente = (Double) (0.0 + Integer.parseInt(coefEnteroToken.image));
-    }
-    (
-      "." 
-      coefDecimalesToken = < ENTERO >
-      {
-        coefDecimales = Double.parseDouble(coefDecimalesToken.image);
-        while (coefDecimales > 1) coefDecimales = coefDecimales / 10;
-        mon.coeficiente = mon.coeficiente + coefDecimales;
-      }
-    )?
+    mon.coeficiente = numeroNoSimbolico()
   )?
   (
     < TINDEPENDIENTE >
@@ -845,10 +861,21 @@ Monomio monomio() :
       mon.grado = 1;
     }
     (
-      < ELEVADO > gradoToken = < ENTERO >
+      < ELEVADO >
+      numInt = cifras()
+	  (
+	    "." 
+	    numFrac = cifras()
+	  )?
+	  {
+      for (int i = 0; i < numInt.length(); i++)
       {
-        mon.grado = Integer.parseInt(gradoToken.image);
+        if (numInt.toCharArray() [ i ] - 65 >= 0) cifra = numInt.toCharArray() [ i ] - 55;
+        else cifra = numInt.toCharArray() [ i ] - 48;
+        numIntDecimal = numIntDecimal * 10 + cifra;
       }
+      mon.grado = numIntDecimal;
+    }
     )?
   )?
   {

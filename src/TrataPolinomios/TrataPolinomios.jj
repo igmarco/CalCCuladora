@@ -1,0 +1,190 @@
+/**
+ * JavaCC template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
+ */
+options
+{
+  static = true;
+}
+
+PARSER_BEGIN(TrataPolinomios)
+package TrataPolinomios;
+import java.util.*;
+
+class Monomio
+{
+  public Double coeficiente;
+
+  public Integer grado;
+
+  public Monomio(Double c, Integer g)
+  {
+    this.coeficiente = c;
+    this.grado = g;
+  }
+}
+
+;
+
+public class TrataPolinomios
+{
+  public static void main(String args []) throws ParseException
+  {
+    TrataPolinomios parser = new TrataPolinomios(System.in);
+    while (true)
+    {
+      System.out.println("Reading from standard input...");
+      System.out.print("Enter an expression like \"5x^2+3x^3-2+x;\" :");
+      try
+      {
+        switch (TrataPolinomios.one_line())
+        {
+          case 0 : 
+          System.out.println("OK.");
+          break;
+          case 1 : 
+          System.out.println("Goodbye.");
+          break;
+          default : 
+          break;
+        }
+      }
+      catch (Exception e)
+      {
+        System.out.println("NOK.");
+        System.out.println(e.getMessage());
+        TrataPolinomios.ReInit(System.in);
+      }
+      catch (Error e)
+      {
+        System.out.println("Oops.");
+        System.out.println(e.getMessage());
+        break;
+      }
+    }
+  }
+}
+
+PARSER_END(TrataPolinomios)
+
+SKIP :
+{
+  " "
+| "\r"
+| "\t"
+| "\n"
+}
+
+TOKEN : /* OPERATORS */
+{
+  < PLUS : "+" >
+| < MINUS : "-" >
+| < ELEVADO : "^" >
+}
+
+TOKEN :
+{
+  < TINDEPENDIENTE : "x" >
+}
+
+TOKEN :
+{
+  < ENTERO : (< DIGITO >)+ >
+| < DIGITO : [ "0"-"9" ] >
+}
+
+int one_line() :
+{ArrayList < Double > polArr;
+}
+{
+  polArr = polinomio()";"
+  {
+    for(Double coef : polArr) System.out.println("> " + coef);
+    return 0;
+  }
+| ";"
+  {
+    return 1;
+  }
+}
+
+ArrayList < Double > polinomio() :
+{
+  Monomio mon;
+  HashMap < Integer, Double > pol = new HashMap < Integer, Double > ();
+  ArrayList < Double > polArr = new ArrayList < Double > ();
+  boolean resta = false;
+}
+{
+  (    
+  mon = monomio()
+  {
+    pol.put(mon.grado, mon.coeficiente);
+  }
+  (
+    (
+      < PLUS >
+    | < MINUS >
+      {
+        resta = true;
+      }
+    )
+    mon = monomio()
+    {
+      if (resta) mon.coeficiente = - mon.coeficiente;
+      resta = false;
+      if (pol.containsKey(mon.grado)) pol.replace(mon.grado, pol.get(mon.grado) + mon.coeficiente);
+      else pol.put(mon.grado, mon.coeficiente);
+    }
+  )+
+)
+  {
+    Set < Integer > grados = pol.keySet();
+    Integer maximo = 0;
+    for (Integer g : grados) if (g > maximo) maximo = g;
+    for (Integer grado = 0; grado <= maximo; grado++) polArr.add(pol.containsKey(grado) ? pol.get(grado) : (Integer) 0);
+    return polArr;
+  }
+}
+
+Monomio monomio() :
+{
+  Token gradoToken, coefEnteroToken, coefDecimalesToken;
+  Double coefDecimales = 0.0;
+  Monomio mon = new Monomio
+  (
+    (Double) 1.0, (Integer) 0
+  )
+  ;
+}
+{
+  (
+    coefEnteroToken = < ENTERO >
+    {
+      mon.coeficiente = (Double) (0.0 + Integer.parseInt(coefEnteroToken.image));
+    }
+    (
+      "." 
+      coefDecimalesToken = < ENTERO >
+      {
+        coefDecimales = Double.parseDouble(coefDecimalesToken.image);
+        while (coefDecimales > 1) coefDecimales = coefDecimales / 10;
+        mon.coeficiente = mon.coeficiente + coefDecimales;
+      }
+    )?
+  )?
+  (
+    < TINDEPENDIENTE >
+    {
+      mon.grado = 1;
+    }
+    (
+      < ELEVADO > gradoToken = < ENTERO >
+      {
+        mon.grado = Integer.parseInt(gradoToken.image);
+      }
+    )?
+  )?
+  {
+    return mon;
+  }
+}

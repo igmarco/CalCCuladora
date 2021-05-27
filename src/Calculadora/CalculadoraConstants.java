@@ -71,19 +71,27 @@ public interface CalculadoraConstants {
   /** RegularExpression Id. */
   int DIGITO = 34;
   /** RegularExpression Id. */
-  int VARIABLE = 35;
+  int DIGITODECIMAL = 35;
   /** RegularExpression Id. */
-  int LETRA = 36;
+  int ENTERO = 36;
   /** RegularExpression Id. */
-  int I = 37;
+  int VARIABLE = 37;
   /** RegularExpression Id. */
-  int E = 38;
+  int LETRA = 38;
   /** RegularExpression Id. */
-  int PI = 39;
+  int I = 39;
   /** RegularExpression Id. */
-  int IGUAL = 40;
+  int E = 40;
   /** RegularExpression Id. */
-  int HELP = 41;
+  int PI = 41;
+  /** RegularExpression Id. */
+  int IGUAL = 42;
+  /** RegularExpression Id. */
+  int ROOT = 43;
+  /** RegularExpression Id. */
+  int TINDEPENDIENTE = 44;
+  /** RegularExpression Id. */
+  int HELP = 45;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -125,12 +133,16 @@ public interface CalculadoraConstants {
     "\"b\"",
     "\"h\"",
     "<DIGITO>",
+    "<DIGITODECIMAL>",
+    "<ENTERO>",
     "<VARIABLE>",
     "<LETRA>",
     "\"#i\"",
     "\"#e\"",
     "\"#pi\"",
     "\"=\"",
+    "\"#root\"",
+    "\"X\"",
     "\"Help\"",
     "\"(\"",
     "\")\"",
