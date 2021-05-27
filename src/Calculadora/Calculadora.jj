@@ -221,6 +221,12 @@ TOKEN : /* EQUAL */
   < IGUAL : "=" >
 }
 
+TOKEN : /* POLINOMIOS */
+{
+  < ROOT : "root" >
+  < TINDEPENDIENTE : "X" >
+}
+
 TOKEN : /* HELP */
 {
   < HELP : "Help" >
@@ -258,6 +264,7 @@ void sesion() :
       System.out.println("--------------------- ([comparador],[expresi\u00f3n],[expresi\u00f3n]) [expresi\u00f3nS\u00ed] : [expresi\u00f3nNo] --------------------");
       System.out.println("------------ Por supuesto, soporta anidamiento de condicionales (incluso dentro de ----------------------------");
       System.out.println("------------ las propias condiciones). ------------------------------------------------------------------------");
+	  System.out.println("------------ Trabajando para que admita raíces de polinomios con \"#root(polinomio)\". ------------------------- ");
       System.out.println("---------------------------------------------------------------------------------------------------------------");
     }
   | resultado = linea()
@@ -290,16 +297,9 @@ String linea() :
       resultado = resultadoCmplx.toString();
     }
   | LOOKAHEAD(2)
-    resultadoCmplx = condicional1()
+    raicesPolinomio()
     {
-      variables.replace("$", resultadoCmplx);
-      resultado = resultadoCmplx.toString();
-    }
-  | LOOKAHEAD(2)
-    resultadoCmplx = condicional2()
-    {
-      variables.replace("$", resultadoCmplx);
-      resultado = resultadoCmplx.toString();
+      resultado = "--- Fin de la información sobre las raíces del polinomio. ---";
     }
   )
   < EOLn >
@@ -739,5 +739,119 @@ Complejo condicional2() :
     return entonces;
     else 
     return sino;
+  }
+}
+
+//------- COMIENZO RAÍCES DE POLINOMIOS -------
+
+void raicesPolinomio() :
+{
+  ArrayList<Double> pol;
+}
+{
+  < ROOT >
+  "("
+	pol = polinomio()
+  ")"
+  {
+	//Aquí hallo las raíces
+	try {
+		Socket cliente = new Socket("localhost",48500);
+		ObjectOutputStream out = new ObjectOutputStream(cliente.getOutputStream());
+		out.writeObject(polinomio);
+		out.flush();
+		DataInputStream in = new DataInputStream(cliente.getInputStream());
+		String cadena = in.readLine();
+		while(cadena!=null) {
+			System.out.println(cadena);
+			cadena = in.readLine();
+		}
+		
+	}catch(IOException e) {
+	    System.out.println("Error en la conexión con el servidor de cálculo de raíces:");
+		e.printStackTrace();
+	}
+  }
+}
+
+//------- COMIENZO POLINOMIO -------
+
+ArrayList < Double > polinomio() :
+{
+  Monomio mon;
+  HashMap < Integer, Double > pol = new HashMap < Integer, Double > ();
+  ArrayList < Double > polArr = new ArrayList < Double > ();
+  boolean resta = false;
+}
+{
+  mon = monomio()
+  {
+    pol.put(mon.grado, mon.coeficiente);
+  }
+  (
+    (
+      < PLUS >
+    | < MINUS >
+      {
+        resta = true;
+      }
+    )
+    mon = monomio()
+    {
+      if (resta) mon.coeficiente = - mon.coeficiente;
+      resta = false;
+      if (pol.containsKey(mon.grado)) pol.replace(mon.grado, pol.get(mon.grado) + mon.coeficiente);
+      else pol.put(mon.grado, mon.coeficiente);
+    }
+  )+
+  {
+    Set < Integer > grados = pol.keySet();
+    Integer maximo = 0;
+    for (Integer g : grados) if (g > maximo) maximo = g;
+    for (Integer grado = 0; grado <= maximo; grado++) polArr.add(pol.containsKey(grado) ? pol.get(grado) : (Integer) 0);
+    return polArr;
+  }
+}
+
+Monomio monomio() :
+{
+  Token gradoToken, coefEnteroToken, coefDecimalesToken;
+  Double coefDecimales = 0.0;
+  Monomio mon = new Monomio
+  (
+    (Double) 1.0, (Integer) 0
+  )
+  ;
+}
+{
+  (
+    coefEnteroToken = < ENTERO >
+    {
+      mon.coeficiente = (Double) (0.0 + Integer.parseInt(coefEnteroToken.image));
+    }
+    (
+      "." 
+      coefDecimalesToken = < ENTERO >
+      {
+        coefDecimales = Double.parseDouble(coefDecimalesToken.image);
+        while (coefDecimales > 1) coefDecimales = coefDecimales / 10;
+        mon.coeficiente = mon.coeficiente + coefDecimales;
+      }
+    )?
+  )?
+  (
+    < TINDEPENDIENTE >
+    {
+      mon.grado = 1;
+    }
+    (
+      < ELEVADO > gradoToken = < ENTERO >
+      {
+        mon.grado = Integer.parseInt(gradoToken.image);
+      }
+    )?
+  )?
+  {
+    return mon;
   }
 }

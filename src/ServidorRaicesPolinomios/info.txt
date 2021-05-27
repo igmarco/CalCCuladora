@@ -1,0 +1,4 @@
+Servidor
+
+El servidor se ejecuta desde la clase Servidor, y atiende las peticiones de los clientes mediante la clase CalcularRaices,
+calculando las raíces del polinomio indicado por el cliente de forma concurrente mediante la clase CalcularRaiz.
