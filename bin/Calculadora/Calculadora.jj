@@ -15,6 +15,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import static java.lang.Math.pow;
 
 import java.util.*;
 
@@ -42,7 +43,7 @@ public class Calculadora
     Calculadora parser = new Calculadora(System.in);
     while (true)
     {
-      
+
       System.out.println("");
       System.out.println("---------------------------------------------------------------------------------------------------------------");
       System.out.println("------------------------------------------------| CALCULADORA |------------------------------------------------");
@@ -73,76 +74,76 @@ public class Calculadora
     boolean resultado = false;
     switch (comparador)
     {
-      case ">" : 
+      case ">" :
       resultado = (exp1.getReal() > exp2.getReal() || exp1.getImag() > exp2.getImag());
       break;
-      case "<" : 
+      case "<" :
       resultado = (exp1.getReal() < exp2.getReal() || exp1.getImag() < exp2.getImag());
       break;
-      case "==" : 
+      case "==" :
       resultado = (exp1.getReal() == exp2.getReal() && exp1.getImag() == exp2.getImag());
       break;
-      case ">=" : 
+      case ">=" :
       resultado = (exp1.getReal() >= exp2.getReal() || exp1.getImag() >= exp2.getImag());
       break;
-      case "<=" : 
+      case "<=" :
       resultado = (exp1.getReal() <= exp2.getReal() || exp1.getImag() <= exp2.getImag());
       break;
-      case ">NS" : 
+      case ">NS" :
       resultado = (exp1.getReal() > exp2.getReal() || exp1.getImag() > exp2.getImag());
       break;
-      case "<NS" : 
+      case "<NS" :
       resultado = (exp1.getReal() < exp2.getReal() || exp1.getImag() < exp2.getImag());
       break;
-      case "==NS" : 
+      case "==NS" :
       resultado = (exp1.getReal() == exp2.getReal() || exp1.getImag() == exp2.getImag());
       break;
-      case ">=NS" : 
+      case ">=NS" :
       resultado = (exp1.getReal() >= exp2.getReal() || exp1.getImag() >= exp2.getImag());
       break;
-      case "<=NS" : 
+      case "<=NS" :
       resultado = (exp1.getReal() <= exp2.getReal() || exp1.getImag() <= exp2.getImag());
       break;
-      case ">S" : 
+      case ">S" :
       resultado = (exp1.getReal() > exp2.getReal() && exp1.getImag() > exp2.getImag());
       break;
-      case "<S" : 
+      case "<S" :
       resultado = (exp1.getReal() < exp2.getReal() && exp1.getImag() < exp2.getImag());
       break;
-      case ">=S" : 
+      case ">=S" :
       resultado = (exp1.getReal() >= exp2.getReal() && exp1.getImag() >= exp2.getImag());
       break;
-      case "<=S" : 
+      case "<=S" :
       resultado = (exp1.getReal() <= exp2.getReal() && exp1.getImag() <= exp2.getImag());
       break;
-      case ">R" : 
+      case ">R" :
       resultado = (exp1.getReal() > exp2.getReal());
       break;
-      case "<R" : 
+      case "<R" :
       resultado = (exp1.getReal() < exp2.getReal());
       break;
-      case "==R" : 
+      case "==R" :
       resultado = (exp1.getReal() == exp2.getReal());
       break;
-      case ">=R" : 
+      case ">=R" :
       resultado = (exp1.getReal() >= exp2.getReal());
       break;
-      case "<=R" : 
+      case "<=R" :
       resultado = (exp1.getReal() <= exp2.getReal());
       break;
-      case ">I" : 
+      case ">I" :
       resultado = (exp1.getImag() > exp2.getImag());
       break;
-      case "<I" : 
+      case "<I" :
       resultado = (exp1.getImag() < exp2.getImag());
       break;
-      case "==I" : 
+      case "==I" :
       resultado = (exp1.getImag() == exp2.getImag());
       break;
-      case ">=I" : 
+      case ">=I" :
       resultado = (exp1.getImag() >= exp2.getImag());
       break;
-      case "<=I" : 
+      case "<=I" :
       resultado = (exp1.getImag() <= exp2.getImag());
       break;
     }
@@ -252,6 +253,7 @@ TOKEN : /* POLINOMIOS */
 | < EXTENDEDROOT : "#extendedRoot" >
 | < SINGLEROOT : "#singleRoot" >
 | < TINDEPENDIENTE : "X" >
+| < RESOLVE : "#resolve" >
 }
 
 TOKEN : /* HELP */
@@ -259,6 +261,7 @@ TOKEN : /* HELP */
   < HELP : "Help" >
 }
 
+//Primer no terminal de la gramática, muestra las instrucciones de ayuda y contiene una sucesión de lineas.
 void sesion() :
 {
   String resultado;
@@ -291,10 +294,11 @@ void sesion() :
       System.out.println("--------------------- ([comparador],[expresi\u00f3n],[expresi\u00f3n]) [expresi\u00f3nS\u00ed] : [expresi\u00f3nNo] --------------------");
       System.out.println("------------ Por supuesto, soporta anidamiento de condicionales (incluso dentro de ----------------------------");
       System.out.println("------------ las propias condiciones). ------------------------------------------------------------------------");
-	  System.out.println("------------ Permite hallar raíces de polinomios: ------------------------------------------------------------ ");
-	  System.out.println("--------------------- \"#root(polinomio)\" halla todas las raíces.  -------------------------------------------- ");
-	  System.out.println("--------------------- \"#extendedRoot(polinomio)\" halla todas las raíces y ofrece información adicional.  ----- ");
-	  System.out.println("--------------------- \"#singleRoot(polinomio, real)\" halla la raíz más cercana al real informado (puede) ----- ");
+	  System.out.println("------------ Permite hallar raï¿½ces de polinomios: ------------------------------------------------------------ ");
+	  System.out.println("--------------------- \"#root(polinomio)\" halla todas las raï¿½ces.  -------------------------------------------- ");
+	  System.out.println("--------------------- \"#extendedRoot(polinomio)\" halla todas las raï¿½ces y ofrece informaciï¿½n adicional.  ----- ");
+	  System.out.println("--------------------- \"#singleRoot(polinomio, real)\" halla la raï¿½z mï¿½s cercana al real informado (puede) ----- ");
+    System.out.println("--------------------- \"#resolve(polinomio, real)\" resuelve el polinomio sustituyendo x por el real ----- ");
 	  System.out.println("--------------------- usarse como valor para expresiones y condicionales. ------------------------------------ ");
       System.out.println("---------------------------------------------------------------------------------------------------------------");
     }
@@ -309,6 +313,7 @@ void sesion() :
   }
 }
 
+//No terminal de la gramatica llama entre varias opciones a una asignación, una expression, al no terminal raicesPolinomio y raicesPolinomioExtendido
 String linea() :
 {
   Complejo resultadoCmplx;
@@ -330,12 +335,12 @@ String linea() :
   | LOOKAHEAD(2)
     raicesPolinomio()
     {
-      resultado = "--- Fin de la información sobre las raíces del polinomio. ---";
+      resultado = "--- Fin de la informaciï¿½n sobre las raï¿½ces del polinomio. ---";
     }
   | LOOKAHEAD(2)
     raicesPolinomioExtendido()
     {
-      resultado = "--- Fin de la información sobre las raíces del polinomio. ---";
+      resultado = "--- Fin de la informaciï¿½n sobre las raï¿½ces del polinomio. ---";
     }
   )
   < EOLn >
@@ -344,7 +349,8 @@ String linea() :
   }
 }
 
-//------- COMIENZO ASIGNACIÓN -------
+//------- COMIENZO ASIGNACIï¿½N -------
+//No terminal asignación donde verifica que haya una variable un simbolo igual y un expresion, asigna esa expresion a la variable en la tabla de variables.
 Complejo asignacion() :
 {
   Token variableToken;
@@ -356,7 +362,7 @@ Complejo asignacion() :
   {
     variable = variableToken.image;
   }
-  < IGUAL > 
+  < IGUAL >
   valor = expresion()
   {
     variables.put(variable, valor);
@@ -366,7 +372,9 @@ Complejo asignacion() :
   }
 }
 
-//------- COMIENZO EXPRESIÓN GENERAL (EXPRESIÓN NUMÉRICA O CONDICIONAL) -------
+//------- COMIENZO EXPRESIï¿½N GENERAL (EXPRESIï¿½N NUMï¿½RICA O CONDICIONAL) -------
+//No terminal donde puede ocurrir que haya una expresiones numéricas, un condicional1 o un condicional2
+//De esta manera podemos anidar condicionales.
 Complejo expresion() :
 {
   Complejo resultado;
@@ -385,7 +393,10 @@ Complejo expresion() :
   }
 }
 
-//------- COMIENZO EXPRESIÓN NUMÉRICA -------
+//------- COMIENZO EXPRESIï¿½N NUMï¿½RICA -------
+//Es te no terminal es muy similar al no terminal Expresion que se pedía originalmente en el ejercicio
+//Devuelve un complejo (Recordemos que esta calculadora trabaja con complejos no con enteros) y verificar
+//una sucesión de por lo menos un termino seguido de 0 o más signos "+" o "-" y otro termino.
 Complejo expresionNum() :
 {
   Complejo parcial;
@@ -416,6 +427,8 @@ Complejo expresionNum() :
 }
 
 //------- COMIENZO SUMAS-PRODUCTOS -------
+//No terminal similar al original del ejercicio verifica un factor, seguido de 0 o más simbolos "*" o "/" y un termino
+//Devuelve el complejo resultado 
 Complejo termino() :
 {
   Complejo parcial;
@@ -453,6 +466,8 @@ Complejo termino() :
   }
 }
 
+//No terminal que comienza opcionalmente con un signo negativo, un número complejo o una expresión entre paréntesis
+//Que pueden estar elevados a otro factor de manera opcional, devuelve el resultado.
 Complejo factor() :
 {
   boolean negativo = false;
@@ -471,8 +486,8 @@ Complejo factor() :
       resultadoComplejo = numero()
     |
       (
-        "(" 
-        resultadoComplejo = expresion() 
+        "("
+        resultadoComplejo = expresion()
         ")"
       )
     )
@@ -481,7 +496,7 @@ Complejo factor() :
     }
   )
   (
-    < ELEVADO > 
+    < ELEVADO >
     potencia = factor()
     {
       resultadoComplejo = Complejo.potencia(resultadoComplejo, potencia);
@@ -492,7 +507,10 @@ Complejo factor() :
   }
 }
 
-//------- COMIENZO NÚMEROS -------
+//------- COMIENZO Nï¿½MEROS -------
+//Numero es un no terminal donde puede verificarse o un numeroNoSimbolico (no terminal que se explicará más adelante)
+//O el número PI, o el E o el Imaginario, ademas puede ser la raiz simple de un polinomio (No terminal que se explicará más adelante)
+//o el resultado de evaluar un polinomio
 Complejo numero() :
 {
   Token variableToken;
@@ -523,8 +541,16 @@ Complejo numero() :
 {
 	return new Complejo(num, 0);
 }
+| num = resolverPolinomio()
+{
+	return new Complejo(num, 0);
+}
 }
 
+//Este es similar al no terminal Numero de la gramatica del ejercicio original
+//En este caso se espera un terminal cifras seguido opcionalmente de un punto y más cifras.
+//luego puede tener la terminación decimal "d" u octal "o" o binaria "b" o headecimal "h" en cada caso se transforma de manera precisa a base 10.
+//Si no se especifica esta terminación se calcula como si fuese decimal.
 double numeroNoSimbolico() :
 {
   String numInt, numFrac = "", digitos;
@@ -535,7 +561,7 @@ double numeroNoSimbolico() :
 {
   numInt = cifras()
   (
-    "." 
+    "."
     numFrac = cifras()
   )?
   (
@@ -621,6 +647,8 @@ double numeroNoSimbolico() :
   }
 }
 
+//Este no terminal tiene un toke digito seguido opcionalmente de cifras.
+//De vuelve el numero reconocido como tal.
 String cifras() :
 {
   Token d;
@@ -643,6 +671,9 @@ String cifras() :
 }
 
 //------- COMIENZO CONDICIONAL: PRIMER TIPO -------
+//Este condicional aunque biomodificado geneticamente, es similar al original del ejercicio
+//Espera un token parentesis izquierdo un comparador dos expresiones separadas por tokens "," otro token parentesis derecho para cerrar, la epxpresión a ejecutar en el caso de que
+//se cumpla la condición token ":" y expresión a ejecutar en caso contrario.
 Complejo condicional1() :
 {
   Token compToken;
@@ -675,10 +706,10 @@ Complejo condicional1() :
   {
     comparador = compToken.image;
   }
-  "," 
-  exp1 = expresion() 
-  "," 
-  exp2 = expresion() 
+  ","
+  exp1 = expresion()
+  ","
+  exp2 = expresion()
   ")"
   {
     cond = Calculadora.compara(comparador, exp1, exp2);
@@ -687,7 +718,7 @@ Complejo condicional1() :
   {
     if (cond) resultado = expEntonces;
   }
-  ":" 
+  ":"
   expSiNo = expresion()
   {
     if (!cond) resultado = expSiNo;
@@ -698,6 +729,10 @@ Complejo condicional1() :
 }
 
 //------- COMIENZO CONDICIONAL: SEGUNDO TIPO -------
+//Este no terminal condicional es más similar al de un lenguaje de porgramación pero su sintaxis ha sido modificada para parecerse al pseudocódigo además de estar traducido
+//Comienza con un token "si" un parentesis, una expresión el comparador otra expresión el parentesis que cierra la condición un token "entonces" la expresión a ejecutar en ese caso
+//un token "si no si" y su condición similar al anterior entre paréntesis y la expresión a ejecutar en el caso de que se cumpliese ese else if y por ultimo el "si no" que es el else
+//que contiene una expresión que se ejecutará en el caso de que ninguna otra condición se cumpla.
 Complejo condicional2() :
 {
   String comparador;
@@ -710,7 +745,7 @@ Complejo condicional2() :
 }
 {
   (
-    < IF > "(" 
+    < IF > "("
     exp1 = expresion()
     (
       comparador = < G >.image
@@ -729,11 +764,11 @@ Complejo condicional2() :
     | comparador = < LEQI >.image
     | comparador = < EQI >.image
     )
-    exp2 = expresion() 
-    ")" < THEN > 
+    exp2 = expresion()
+    ")" < THEN >
     entonceses [ i ] = expresion()
   )
-  {		
+  {
     condiciones [ i ] = Calculadora.compara(comparador, exp1, exp2);
     ++i;
   }
@@ -756,14 +791,14 @@ Complejo condicional2() :
     | comparador = < LEQI >.image
     | comparador = < EQI >.image
     )
-    exp2 = expresion() ")" < THEN > 
+    exp2 = expresion() ")" < THEN >
     entonceses [ i ] = expresion()
-    {		
+    {
       condiciones [ i ] = Calculadora.compara(comparador, exp1, exp2);
       ++i;
     }
-  )*	
-  < ELSE > 
+  )*
+  < ELSE >
   sino = expresion()
   {
     for (int j = 0; j < condiciones.length; ++j)
@@ -775,15 +810,18 @@ Complejo condicional2() :
         break;
       }
     }
-    if (condicion) 
+    if (condicion)
     return entonces;
-    else 
+    else
     return sino;
   }
 }
 
-//------- COMIENZO RAÍCES DE POLINOMIOS -------
+//------- COMIENZO RAï¿½CES DE POLINOMIOS -------
 
+//Este método contacta con el servidor y le envia un polinomio en forma de lista para calcular las raices,
+//se comunica con el através de Streams y va mostrando los resultados.
+//No olvideis usar flush() si usais sockets!
 void raicesPolinomio() :
 {
   ArrayList<Double> pol;
@@ -794,7 +832,7 @@ void raicesPolinomio() :
 	pol = polinomio()
   ")"
   {
-	//Aquí hallo las raíces
+	//Aquï¿½ hallo las raï¿½ces
 	try {
 		Socket cliente = new Socket("localhost",48500);
 		ObjectOutputStream out = new ObjectOutputStream(cliente.getOutputStream());
@@ -808,7 +846,7 @@ void raicesPolinomio() :
 			cadena = in.readLine();
 		}
 
-		if(cadena.equals("No existen raices reales")) System.out.println("No existen raíces reales para el polinomio.");
+		if(cadena.equals("No existen raices reales")) System.out.println("No existen raï¿½ces reales para el polinomio.");
 		else {
 			cadena = in.readLine();
 
@@ -817,14 +855,16 @@ void raicesPolinomio() :
 				cadena = in.readLine();
 			}
 		}
-		
+
 	}catch(IOException e) {
-	    System.out.println("Error en la conexión con el servidor de cálculo de raíces.");
+	    System.out.println("Error en la conexiï¿½n con el servidor de cï¿½lculo de raï¿½ces.");
 		//e.printStackTrace();
 	}
   }
 }
 
+//Este es un no terminal muy similar al anterior pero muestra la información detallada del cálculo de las raices
+//cotas minimas, derivadas y otros parámetros que ha tenido en cuenta.
 void raicesPolinomioExtendido() :
 {
   ArrayList<Double> pol;
@@ -835,7 +875,7 @@ void raicesPolinomioExtendido() :
 	pol = polinomio()
   ")"
   {
-	//Aquí hallo las raíces
+	//Aquï¿½ hallo las raï¿½ces
 	try {
 		Socket cliente = new Socket("localhost",48500);
 		ObjectOutputStream out = new ObjectOutputStream(cliente.getOutputStream());
@@ -848,15 +888,16 @@ void raicesPolinomioExtendido() :
 			cadena = in.readLine();
 		}
 
-		if(cadena.equals("No existen raices reales")) System.out.println("No existen raíces reales para el polinomio.");
-		
+		if(cadena.equals("No existen raices reales")) System.out.println("No existen raï¿½ces reales para el polinomio.");
+
 	}catch(IOException e) {
-	    System.out.println("Error en la conexión con el servidor de cálculo de raíces.");
+	    System.out.println("Error en la conexiï¿½n con el servidor de cï¿½lculo de raï¿½ces.");
 		//e.printStackTrace();
 	}
   }
 }
 
+//Calcula la raiz más aproximada al numero que encuentra en el no terminal numeroNoSimbólico
 double raizPolinomioSimple() :
 {
   ArrayList<Double> pol;
@@ -873,7 +914,8 @@ double raizPolinomioSimple() :
   "("
 	pol = polinomio()
 	","
-	(		< MINUS >
+	(
+		< MINUS >
 		{
 			menos = true;
 		}
@@ -884,7 +926,7 @@ double raizPolinomioSimple() :
 	}
   ")"
   {
-	//Aquí hallo las raíces
+	//Aquï¿½ hallo las raï¿½ces
 	try {
 		Socket cliente = new Socket("localhost",48500);
 		ObjectOutputStream out = new ObjectOutputStream(cliente.getOutputStream());
@@ -898,7 +940,7 @@ double raizPolinomioSimple() :
 			cadena = in.readLine();
 		}
 
-		if(cadena.equals("No existen raices reales")) System.out.println("No existen raíces reales para el polinomio.");
+		if(cadena.equals("No existen raices reales")) System.out.println("No existen raï¿½ces reales para el polinomio.");
 		else {
 			cadena = in.readLine();
 
@@ -912,7 +954,7 @@ double raizPolinomioSimple() :
 		if(!raices.isEmpty()) {
 			raizDevuelta = Double.parseDouble(raices.get(0));
 			diferencia = Math.abs(Double.parseDouble(raices.get(0))-numeroSimilar);
-			
+
 			for(String raiz : raices) {
 			  if(Math.abs(Double.parseDouble(raiz)-numeroSimilar) <  diferencia) {
 				raizDevuelta = Double.parseDouble(raiz);
@@ -921,16 +963,54 @@ double raizPolinomioSimple() :
 			}
 			return raizDevuelta;
 		}
-		
+
 	}catch(IOException e) {
-	    System.out.println("Error en la conexión con el servidor de cálculo de raíces.");
+	    System.out.println("Error en la conexiï¿½n con el servidor de cï¿½lculo de raï¿½ces.");
 		//e.printStackTrace();
 	}
   }
 }
 
+//Método para resolver el polinomio, espera un número que sustituirá en las X para obtener el resultado.
+double resolverPolinomio(): {  ArrayList<Double> pol;
+                               double numeroSimilar, resultado=0;
+                               boolean menos = false;}
+{
+
+  <RESOLVE> "(" pol = polinomio() ","
+
+  (
+		< MINUS >
+		{
+			menos = true;
+		}
+	)?
+	numeroSimilar = numeroNoSimbolico()
+	{
+		if(menos) numeroSimilar = -numeroSimilar;
+	}
+  ")"
+
+  {
+    for(int i=0; i<pol.size(); i++){
+      if(i == 0)
+      	resultado += pol.get(0);
+      else
+      	resultado += pol.get(i)*pow(numeroSimilar,i);
+    }
+
+    return resultado;
+
+  }
+
+
+
+}
+
 //------- COMIENZO POLINOMIO -------
 
+//Este no terminal reconoce la secuencia de tokens de un polinomio y devulve la lista asociada a él
+//En este caso es una sucesión de monomios.
 ArrayList < Double > polinomio() :
 {
   Monomio mon;
@@ -941,7 +1021,8 @@ ArrayList < Double > polinomio() :
   boolean menos = false;
 }
 {
-  (	< MINUS >
+  (
+	< MINUS >
 	{
 		menos = true;
 	}
@@ -976,6 +1057,7 @@ ArrayList < Double > polinomio() :
   }
 }
 
+//No terminal monomio que se compone por el coeficiente, la X y el elvado. 
 Monomio monomio() :
 {
   Token gradoToken, coefEnteroToken, coefDecimalesToken;
@@ -1004,7 +1086,7 @@ Monomio monomio() :
       < ELEVADO >
       numInt = cifras()
 	  (
-	    "." 
+	    "."
 	    numFrac = cifras()
 	  )?
 	  {

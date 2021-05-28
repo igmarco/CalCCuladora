@@ -95,7 +95,9 @@ public interface CalculadoraConstants {
   /** RegularExpression Id. */
   int TINDEPENDIENTE = 46;
   /** RegularExpression Id. */
-  int HELP = 47;
+  int RESOLVE = 47;
+  /** RegularExpression Id. */
+  int HELP = 48;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -149,6 +151,7 @@ public interface CalculadoraConstants {
     "\"#extendedRoot\"",
     "\"#singleRoot\"",
     "\"X\"",
+    "\"#resolve\"",
     "\"Help\"",
     "\"(\"",
     "\")\"",
